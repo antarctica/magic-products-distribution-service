@@ -3,3 +3,4 @@
 /provisioning/terraform/.terraform
 __pycache__
 auth-token.json
+auth-credentials.json

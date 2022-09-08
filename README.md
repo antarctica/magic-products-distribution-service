@@ -130,26 +130,30 @@ To clarify the requirements for resource constraints:
 
 ### Test script
 
-A test script is available to demonstrate an end-to-end process for depositing Artefacts within a Resource. It 
+A test script is available to demonstrate an end-to-end process for depositing Artefacts within a Resource. It
 implements the [Workflow](#workflow) for this project, with the following exceptions:
 
 * records aren't selected or read from the BAS Data Catalogue, a very simplified mock is used instead
 * as a consequence, updated records aren't written back to the Data Catalogue, but output as local files
 
-This test script combines and replaces the [older test scripts](#old-test-scripts) that tested specific parts of the 
+This test script combines and replaces the [older test scripts](#old-test-scripts) that tested specific parts of the
 workflow.
 
 ```shell
 $ poetry run python test-chain.py
 ```
 
-With no arguments, this command will list available commands. Specifying the `deposit` command with no arguments will
-list available records for deposit.
+With no arguments, this command will list available commands.
 
-To deposit a resource 'foo':
+The `sign-in` command authenticates a user or service principle for interacting with the Microsoft Graph API. It 
+supports two OAuth flows (`device` for interactive use, `credentidals` for non-interactive), specified as a positional 
+parameter. If using the `credentials` flow, create an `./auth-credentials` file [1].
+
+Specifying the `deposit` command with no arguments will list available records for deposit. To deposit a resource 
+with a file identifier:
 
 ```shell
-$ poetry run python test-chain.py sign-in
+$ poetry run python test-chain.py sign-in device
 $ poetry run python test-chain.py deposit foo
 ```
 
@@ -161,10 +165,19 @@ Once deposited, a record can be withdrawn (reset) manually by:
 **Note:** You need suitable permissions to run this script:
 
 * you need to be a member of the MAGIC Microsoft Office365 Team
-* you need to have access access to an AWS IAM principle with the 
+* you need to have access access to an AWS IAM principle with the
   `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer managed policy attached
 
 **Note:** This test script is not representative of how code for this service will be written.
+
+[1] Example `auth-credentials.json`:
+
+```json
+{
+  "username": "foo@bas.ac.uk",
+  "password": "xxx"
+}
+```
 
 ### Old test scripts
 
@@ -185,14 +198,14 @@ $ poetry run python test-upload.py
 
 #### Test lookup items script
 
-A test script is available to check artefact lookup entries can be added programmatically to the Data Catalogue 
+A test script is available to check artefact lookup entries can be added programmatically to the Data Catalogue
 Downloads Proxy. This script can be ran within a [Development Environment](#development-environment).
 
 ```shell
 $ poetry run python test-lookup.py
 ```
 
-**Note:** You need suitable permissions (the `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer 
+**Note:** You need suitable permissions (the `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer
 managed policy attached to a suitable user within the BAS AWS account) to run this script.
 
 **Note:** You need to setup AWS credentials to run this script, for example by running `aws configure` with the AWS CLI
@@ -202,9 +215,9 @@ installed.
 
 #### Test metadata record loading script
 
-A test script is available to check an ISO 19115 metadata record using the BAS Metadata Library JSON encoding can be 
-loaded and validated against it's default schema, and the schema specific to this service, which ensures it complies 
-with the service [Requirements](#requirements). This script can be ran within a 
+A test script is available to check an ISO 19115 metadata record using the BAS Metadata Library JSON encoding can be
+loaded and validated against it's default schema, and the schema specific to this service, which ensures it complies
+with the service [Requirements](#requirements). This script can be ran within a
 [Development Environment](#development-environment).
 
 ```shell
@@ -309,14 +322,14 @@ Where:
 * `{origin_url}` is the URL noted in step 7 (from SharePoint)
 * `{artefact_id}` is the unique ID generated for the Artefact
 * `{resource_id}` is the value of the `file_identifier` property in the metadata for the Artefact
-* `{media_type}` is the (preferably [IANA assigned](https://www.iana.org/assignments/media-types/media-types.xhtml)) 
+* `{media_type}` is the (preferably [IANA assigned](https://www.iana.org/assignments/media-types/media-types.xhtml))
   media type for the Artefact
 
 For example (based on [3]):
 
 ```shell
 # with the awscurl installed and access to a AWS IAM principle with appropriate privileges
-$ awscurl --region eu-west-1 --service lambda --access_key $AWS_ACCESS_KEY_ID --secret_key $AWS_SECRET_ACCESS_KEY 
+$ awscurl --region eu-west-1 --service lambda --access_key $AWS_ACCESS_KEY_ID --secret_key $AWS_SECRET_ACCESS_KEY
 'https://dvej4gdfa333uci4chyhkxj3wq0fkxrs.lambda-url.eu-west-1.on.aws/' --request POST --header 'Content-Type: application/json' --data $'{"artefact_id": "cb794264-e2d1-4a5a-8e31-8cf774fede54", "resource_id": "24dce09c-9eee-4d90-8402-63f63012d767", "media_type": "application/pdf", "origin_url": "https://nercacuk.sharepoint.com/sites/MAGICProductsDistribution/Main/24dce09c-9eee-4d90-8402-63f63012d767/foo-map.pdf"}'
 ```
 
@@ -356,7 +369,7 @@ For a metadata record from the [BAS Data Catalogue](https://gitlab.data.bas.ac.u
 
 ### Structure - conceptual
 
-Conceptually, Artefacts (files) for Resources (products) are stored as immutable objects, with tags storing unique 
+Conceptually, Artefacts (files) for Resources (products) are stored as immutable objects, with tags storing unique
 identifiers for each Artefact and the Resource they relate to.
 
 For example, a map product ('Map of Foo') consists of two distribution files (Artefacts), a PDF and JPEG export.
@@ -377,8 +390,8 @@ Conceptually, these Artefacts would be stored as objects like this:
 
 **Note:** Object names are not significant in this service or conceptual model, they could be anything.
 
-**Note:** In cases where an Artefact needs to be changed (because the wrong file was selected, or contains a mistake 
-for example), the correct file would need to deposited as a new Artefact, as Artefacts are immutable. Once added, the 
+**Note:** In cases where an Artefact needs to be changed (because the wrong file was selected, or contains a mistake
+for example), the correct file would need to deposited as a new Artefact, as Artefacts are immutable. Once added, the
 old artefact would be removed from the Resource (which are mutable).
 
 ### Structure - SharePoint
@@ -633,7 +646,7 @@ Microsoft Graph API.
 **Note:** Ad-hoc permission assignments MUST NOT be made directly within SharePoint. They may be removed or changed
 without warning by this service.
 
-Where permissions reference the `~nerc` 'All NERC Staff' alias, a view only 
+Where permissions reference the `~nerc` 'All NERC Staff' alias, a view only
 [Organisational sharing link](https://docs.microsoft.com/en-us/graph/api/driveitem-createlink) is created for each
 file (Artefact) associated with the Resource (product). These links will be used in distribution options, instead of
 the normal item access URL.
@@ -646,9 +659,9 @@ Normal access URLs for each item/file are used in distribution options.
 
 ### SharePoint - objects reference
 
-See the 
-[MAGIC Products Distribution Service - Sharepoint objects reference](https://start.1password.com/open/i?a=QSB6V7TUNVEOPPPWR6G7S2ARJ4&v=ffy5l25mjdv577qj6izuk6lo4m&i=pnywcjeudvbo7beuw4om6jfpce&h=magic.1password.eu) 
-item in the shared vault of the MAGIC 1Password account for the specific SharePoint resources used. Generic information 
+See the
+[MAGIC Products Distribution Service - Sharepoint objects reference](https://start.1password.com/open/i?a=QSB6V7TUNVEOPPPWR6G7S2ARJ4&v=ffy5l25mjdv577qj6izuk6lo4m&i=pnywcjeudvbo7beuw4om6jfpce&h=magic.1password.eu)
+item in the shared vault of the MAGIC 1Password account for the specific SharePoint resources used. Generic information
 is shown in this README.
 
 **Note:** These resources are not secrets but are not listed publicly as a precaution.
@@ -661,13 +674,28 @@ Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/s
 [search](https://docs.microsoft.com/en-us/graph/api/site-search) endpoint of the sites resource in Microsoft Graph,
 e.g. `https://graph.microsoft.com/v1.0/sites?search=site_name`.
 
-#### Document Library (Main/Production)
+#### Document Library
 
 Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/drive
 
 **Note:** To find the ID for this resource, query `https://graph.microsoft.com/v1.0/sites/{SITE}/drives`
 
-#### Document Library List (Main/Production)
+#### Document Library items
+
+Graph resource reference: 
+
+To get details for an item in a Document Library, query: `https://graph.microsoft.com/v1.0/drives/{DRIVE}/items/{ITEM}`
+
+To get permission details for an item in a Document Library, query:
+`https://graph.microsoft.com/v1.0/drives/{DRIVE}/items/{ITEM}/permissions`
+
+**Note:** To find the ID for this resource, query: 
+`https://graph.microsoft.com/v1.0/drives/{DRIVE}/items/{ROOT ITEM}/children`
+
+**Note:** To find the ID for this resource, query:
+`https://graph.microsoft.com/v1.0/sites/{SITE}/drives/{DRIVE}/root`
+
+#### Document Library List
 
 Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/list
 
@@ -679,8 +707,35 @@ Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/l
 
 Contact [BAS IT](mailto:servicedesk@bas.ac.uk) to request the creation of two service accounts/principles:
 
-1. `BAS_MAGIC_PRODUCTS_DIST_ANON_ACCESS` (BAS MAGIC Products Distribution - Anonymous Access Account)
-1. `BAS_MAGIC_PRODUCTS_DIST_COND_ACCESS` (BAS MAGIC Products Distribution - Conditional Access Account)
+1. `basmagicanon_svcacc@bas.ac.uk` (BAS MAGIC Products Distribution - Anonymous Access Account)
+1. `basmagiccond_svcacc@bas.ac.uk` (BAS MAGIC Products Distribution - Conditional Access Account)
+
+**Note:** These accounts need to be propagated to Azure Active Directory, so they can use the Microsoft Graph API. 
+
+See [#12](https://gitlab.data.bas.ac.uk/MAGIC/products-distribution/-/issues/12) and
+[#18](https://gitlab.data.bas.ac.uk/MAGIC/products-distribution/-/issues/18) for example requests.
+
+#### Priming service principles for non-interactive authentication
+
+The non-interactive *Username and Password* (credentials) OAuth flow cannot be used for applications the user has not 
+already consented to, as this requires an interactive session with a browser.
+
+To provide this initial consent, the interactive *Device* flow can be used via the [Test Script](#test-script).
+
+For each service principle:
+
+1. generate a sign-in URL using the device OAuth flow [1]
+2. sign-in with the email address for the service principle
+3. agree to the scopes/permissions required by the application
+4. complete the login in the application, which will retrieve an access token, confirming consent was successful
+
+This only needs to be done once for each account.
+
+[1]
+
+```
+$ poetry run python test-chain.py sign-in device
+```
 
 ### SharePoint
 
@@ -693,19 +748,23 @@ Contact [BAS IT](mailto:servicedesk@bas.ac.uk) to request a new SharePoint site:
     * one or more admin accounts (e.g. `o365conwat@bas.ac.uk`), separate from end-user accounts
 * members:
     * members of the [BAS MAGIC Team](https://nercacuk.sharepoint.com/sites/BASMagicTeam), as a group
-    * the `BAS_MAGIC_PRODUCTS_DIST_COND_ACCESS` service principle
 * visitors: None
 
-**Note:** Do NOT add the `BAS_MAGIC_PRODUCTS_DIST_ANON_ACCESS` service principle as a site member (or any other role).
+Once created, and as an admin user:
 
-Once created:
-
-1. as an admin user, remove all widgets/text from the default site homepage
-2. as an admin user, create a new document library:
+1. remove all widgets/text from the default site homepage
+2. go to *Site contents* -> *Site settings* -> *Site permissions*
+    * remove permissions for the 'MAGIC Products Distribution Visitors' group (which will remove the group)
+3. go to *Site contents* -> *Site settings* -> *People and groups*
+    * from the groups list in the left navigation pane, select *MAGIC Products Distribution Members*
+    * choose *New* -> *Add Users*
+    * invite the `basmagiccond_svcacc@bas.ac.uk` service principle
+    * **DO NOT** add the `basmagicanon_svcacc@bas.ac.uk` service principle as a site member (or as any other role)
+4. create a new document library:
     * name: `Main`
     * description: `Access copies of products created or managed by MAGIC for distribution. Production environment.`
     * 'show in site navigation': *False*
-3. once created, add a new list column:
+5. once created, add a new list column:
     * type: *Single line of text*
     * name: `resource_id`
     * description: `Resource identifier each artefact relates to`
@@ -716,7 +775,7 @@ Once created:
     * (more options) 'Enforce unique values': *False*
     * (more options) 'Add to all content types': *True*
     * (more options) column validation: None
-4. once created, add a second new list column:
+6. once created, add a second new list column:
     * type: *Single line of text*
     * name: `artefact_id`
     * description: `Unique identifier for each resource artefact`
@@ -730,11 +789,11 @@ Once created:
 
 ### Terraform
 
-Terraform is used for registering an Azure Application Registration to allow this service to authenticate users and 
+Terraform is used for registering an Azure Application Registration to allow this service to authenticate users and
 interact with SharePoint.
 
-Access to the [BAS AWS account](https://gitlab.data.bas.ac.uk/WSF/bas-aws) 
-(to access [Terraform remote state](#terraform-remote-state) state) and the NERC Azure tenancy are required to 
+Access to the [BAS AWS account](https://gitlab.data.bas.ac.uk/WSF/bas-aws)
+(to access [Terraform remote state](#terraform-remote-state) state) and the NERC Azure tenancy are required to
 provision these resources.
 
 ```shell

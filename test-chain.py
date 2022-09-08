@@ -47,9 +47,40 @@ auth_client_tenancy: str = "https://login.microsoftonline.com/b311db95-32ad-438f
 auth_client_id: str = "3b2c5acf-728a-4b78-85f0-9560a6aad701"
 auth_client_scopes: List[str] = ["https://graph.microsoft.com/Files.ReadWrite.All"]
 auth_token_path = Path("./auth-token.json")
+auth_credentials_path = Path('./auth-credentials.json')
 
 
-def auth_sign_in() -> None:
+def save_auth_token(auth_payload):
+    if 'error' in auth_payload.keys():
+        print(auth_payload)
+        raise RuntimeError("Error in Auth token")
+
+    logging.debug(f"Saving auth payload to auth file at: '{auth_token_path.resolve()}'")
+    with open(auth_token_path.resolve(), mode="w") as auth_token_file:
+        json.dump(auth_payload, auth_token_file, indent=2)
+    logging.info(f"Authentication token written to auth file at: '{auth_token_path.resolve()}'")
+
+
+def auth_sign_in_credentials_flow() -> None:
+    """
+    Note warnings here: https://github.com/AzureAD/microsoft-authentication-library-for-python/wiki/Username-Password-Authentication
+    """
+    auth_client_public: PublicClientApplication = PublicClientApplication(
+        client_id=auth_client_id, authority=auth_client_tenancy
+    )
+
+    logging.debug("Retrieving login credentials")
+    with open(auth_credentials_path, mode='r') as credentials_file:
+        credentials = json.load(credentials_file)
+
+    logging.debug("Acquiring token from login credentials")
+    auth_payload = auth_client_public.acquire_token_by_username_password(username=credentials['username'], password=credentials['password'], scopes=[])
+    logging.debug(f"Auth payload:")
+    logging.debug(auth_payload)
+    save_auth_token(auth_payload=auth_payload)
+
+
+def auth_sign_in_device_flow() -> None:
     auth_client_public: PublicClientApplication = PublicClientApplication(
         client_id=auth_client_id, authority=auth_client_tenancy
     )
@@ -64,10 +95,7 @@ def auth_sign_in() -> None:
     auth_payload = auth_client_public.acquire_token_by_device_flow(auth_flow)
     logging.debug(f"Auth payload:")
     logging.debug(auth_payload)
-    logging.debug(f"Saving auth payload to auth file at: '{auth_token_path.resolve()}'")
-    with open(auth_token_path.resolve(), mode="w") as auth_token_file:
-        json.dump(auth_payload, auth_token_file, indent=2)
-    logging.info(f"Authentication token written to auth file at: '{auth_token_path.resolve()}'")
+    save_auth_token(auth_payload=auth_payload)
 
 
 def get_auth_token() -> str:
@@ -602,7 +630,18 @@ if __name__ == "__main__":
     args = parser.parse_args(sys.argv[1:2])
 
     if args.command == "sign-in":
-        auth_sign_in()
+        parser = ArgumentParser(description="Sign into app using Azure AD account")
+        parser.add_argument(
+            "flow", help="OAuth flow to use", choices=['device', 'credentials'], nargs="?", default='device'
+        )
+        # specific arguments selected to ignore parent command selection
+        args = parser.parse_args(sys.argv[2:])
+
+        if args.flow == 'device':
+            auth_sign_in_device_flow()
+        elif args.flow == 'credentials':
+            auth_sign_in_credentials_flow()
+
         print("Ok. Signed in for next hour.")
         sys.exit(0)
 
