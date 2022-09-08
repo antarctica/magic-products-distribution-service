@@ -143,13 +143,17 @@ workflow.
 $ poetry run python test-chain.py
 ```
 
-With no arguments, this command will list available commands. Specifying the `deposit` command with no arguments will
-list available records for deposit.
+With no arguments, this command will list available commands.
 
-To deposit a resource 'foo':
+The `sign-in` command authenticates a user or service principle for interacting with the Microsoft Graph API. It 
+supports two OAuth flows (`device` for interactive use, `credentidals` for non-interactive), specified as a positional 
+parameter. If using the `credentials` flow, create an `./auth-credentials` file [1].
+
+Specifying the `deposit` command with no arguments will list available records for deposit. To deposit a resource 
+with a file identifier:
 
 ```shell
-$ poetry run python test-chain.py sign-in
+$ poetry run python test-chain.py sign-in device
 $ poetry run python test-chain.py deposit foo
 ```
 
@@ -165,6 +169,15 @@ Once deposited, a record can be withdrawn (reset) manually by:
   `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer managed policy attached
 
 **Note:** This test script is not representative of how code for this service will be written.
+
+[1] Example `auth-credentials.json`:
+
+```json
+{
+  "username": "foo@bas.ac.uk",
+  "password": "xxx"
+}
+```
 
 ### Old test scripts
 
@@ -681,6 +694,27 @@ Contact [BAS IT](mailto:servicedesk@bas.ac.uk) to request the creation of two se
 
 1. `BAS_MAGIC_PRODUCTS_DIST_ANON_ACCESS` (BAS MAGIC Products Distribution - Anonymous Access Account)
 1. `BAS_MAGIC_PRODUCTS_DIST_COND_ACCESS` (BAS MAGIC Products Distribution - Conditional Access Account)
+#### Priming service principles for non-interactive authentication
+
+The non-interactive *Username and Password* (credentials) OAuth flow cannot be used for applications the user has not 
+already consented to, as this requires an interactive session with a browser.
+
+To provide this initial consent, the interactive *Device* flow can be used via the [Test Script](#test-script).
+
+For each service principle:
+
+1. generate a sign-in URL using the device OAuth flow [1]
+2. sign-in with the email address for the service principle
+3. agree to the scopes/permissions required by the application
+4. complete the login in the application, which will retrieve an access token, confirming consent was successful
+
+This only needs to be done once for each account.
+
+[1]
+
+```
+$ poetry run python test-chain.py sign-in device
+```
 
 ### SharePoint
 
