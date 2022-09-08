@@ -692,8 +692,8 @@ Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/l
 
 Contact [BAS IT](mailto:servicedesk@bas.ac.uk) to request the creation of two service accounts/principles:
 
-1. `BAS_MAGIC_PRODUCTS_DIST_ANON_ACCESS` (BAS MAGIC Products Distribution - Anonymous Access Account)
-1. `BAS_MAGIC_PRODUCTS_DIST_COND_ACCESS` (BAS MAGIC Products Distribution - Conditional Access Account)
+1. `basmagicanon_svcacc@bas.ac.uk` (BAS MAGIC Products Distribution - Anonymous Access Account)
+1. `basmagiccond_svcacc@bas.ac.uk` (BAS MAGIC Products Distribution - Conditional Access Account)
 #### Priming service principles for non-interactive authentication
 
 The non-interactive *Username and Password* (credentials) OAuth flow cannot be used for applications the user has not 
