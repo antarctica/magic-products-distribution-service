@@ -130,13 +130,13 @@ To clarify the requirements for resource constraints:
 
 ### Test script
 
-A test script is available to demonstrate an end-to-end process for depositing Artefacts within a Resource. It 
+A test script is available to demonstrate an end-to-end process for depositing Artefacts within a Resource. It
 implements the [Workflow](#workflow) for this project, with the following exceptions:
 
 * records aren't selected or read from the BAS Data Catalogue, a very simplified mock is used instead
 * as a consequence, updated records aren't written back to the Data Catalogue, but output as local files
 
-This test script combines and replaces the [older test scripts](#old-test-scripts) that tested specific parts of the 
+This test script combines and replaces the [older test scripts](#old-test-scripts) that tested specific parts of the
 workflow.
 
 ```shell
@@ -165,7 +165,7 @@ Once deposited, a record can be withdrawn (reset) manually by:
 **Note:** You need suitable permissions to run this script:
 
 * you need to be a member of the MAGIC Microsoft Office365 Team
-* you need to have access access to an AWS IAM principle with the 
+* you need to have access access to an AWS IAM principle with the
   `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer managed policy attached
 
 **Note:** This test script is not representative of how code for this service will be written.
@@ -198,14 +198,14 @@ $ poetry run python test-upload.py
 
 #### Test lookup items script
 
-A test script is available to check artefact lookup entries can be added programmatically to the Data Catalogue 
+A test script is available to check artefact lookup entries can be added programmatically to the Data Catalogue
 Downloads Proxy. This script can be ran within a [Development Environment](#development-environment).
 
 ```shell
 $ poetry run python test-lookup.py
 ```
 
-**Note:** You need suitable permissions (the `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer 
+**Note:** You need suitable permissions (the `BAS-ADD-Catalogue-Downloads-Proxy-Function-Write-Staging` IAM customer
 managed policy attached to a suitable user within the BAS AWS account) to run this script.
 
 **Note:** You need to setup AWS credentials to run this script, for example by running `aws configure` with the AWS CLI
@@ -215,9 +215,9 @@ installed.
 
 #### Test metadata record loading script
 
-A test script is available to check an ISO 19115 metadata record using the BAS Metadata Library JSON encoding can be 
-loaded and validated against it's default schema, and the schema specific to this service, which ensures it complies 
-with the service [Requirements](#requirements). This script can be ran within a 
+A test script is available to check an ISO 19115 metadata record using the BAS Metadata Library JSON encoding can be
+loaded and validated against it's default schema, and the schema specific to this service, which ensures it complies
+with the service [Requirements](#requirements). This script can be ran within a
 [Development Environment](#development-environment).
 
 ```shell
@@ -322,14 +322,14 @@ Where:
 * `{origin_url}` is the URL noted in step 7 (from SharePoint)
 * `{artefact_id}` is the unique ID generated for the Artefact
 * `{resource_id}` is the value of the `file_identifier` property in the metadata for the Artefact
-* `{media_type}` is the (preferably [IANA assigned](https://www.iana.org/assignments/media-types/media-types.xhtml)) 
+* `{media_type}` is the (preferably [IANA assigned](https://www.iana.org/assignments/media-types/media-types.xhtml))
   media type for the Artefact
 
 For example (based on [3]):
 
 ```shell
 # with the awscurl installed and access to a AWS IAM principle with appropriate privileges
-$ awscurl --region eu-west-1 --service lambda --access_key $AWS_ACCESS_KEY_ID --secret_key $AWS_SECRET_ACCESS_KEY 
+$ awscurl --region eu-west-1 --service lambda --access_key $AWS_ACCESS_KEY_ID --secret_key $AWS_SECRET_ACCESS_KEY
 'https://dvej4gdfa333uci4chyhkxj3wq0fkxrs.lambda-url.eu-west-1.on.aws/' --request POST --header 'Content-Type: application/json' --data $'{"artefact_id": "cb794264-e2d1-4a5a-8e31-8cf774fede54", "resource_id": "24dce09c-9eee-4d90-8402-63f63012d767", "media_type": "application/pdf", "origin_url": "https://nercacuk.sharepoint.com/sites/MAGICProductsDistribution/Main/24dce09c-9eee-4d90-8402-63f63012d767/foo-map.pdf"}'
 ```
 
@@ -369,7 +369,7 @@ For a metadata record from the [BAS Data Catalogue](https://gitlab.data.bas.ac.u
 
 ### Structure - conceptual
 
-Conceptually, Artefacts (files) for Resources (products) are stored as immutable objects, with tags storing unique 
+Conceptually, Artefacts (files) for Resources (products) are stored as immutable objects, with tags storing unique
 identifiers for each Artefact and the Resource they relate to.
 
 For example, a map product ('Map of Foo') consists of two distribution files (Artefacts), a PDF and JPEG export.
@@ -390,8 +390,8 @@ Conceptually, these Artefacts would be stored as objects like this:
 
 **Note:** Object names are not significant in this service or conceptual model, they could be anything.
 
-**Note:** In cases where an Artefact needs to be changed (because the wrong file was selected, or contains a mistake 
-for example), the correct file would need to deposited as a new Artefact, as Artefacts are immutable. Once added, the 
+**Note:** In cases where an Artefact needs to be changed (because the wrong file was selected, or contains a mistake
+for example), the correct file would need to deposited as a new Artefact, as Artefacts are immutable. Once added, the
 old artefact would be removed from the Resource (which are mutable).
 
 ### Structure - SharePoint
@@ -646,7 +646,7 @@ Microsoft Graph API.
 **Note:** Ad-hoc permission assignments MUST NOT be made directly within SharePoint. They may be removed or changed
 without warning by this service.
 
-Where permissions reference the `~nerc` 'All NERC Staff' alias, a view only 
+Where permissions reference the `~nerc` 'All NERC Staff' alias, a view only
 [Organisational sharing link](https://docs.microsoft.com/en-us/graph/api/driveitem-createlink) is created for each
 file (Artefact) associated with the Resource (product). These links will be used in distribution options, instead of
 the normal item access URL.
@@ -659,9 +659,9 @@ Normal access URLs for each item/file are used in distribution options.
 
 ### SharePoint - objects reference
 
-See the 
-[MAGIC Products Distribution Service - Sharepoint objects reference](https://start.1password.com/open/i?a=QSB6V7TUNVEOPPPWR6G7S2ARJ4&v=ffy5l25mjdv577qj6izuk6lo4m&i=pnywcjeudvbo7beuw4om6jfpce&h=magic.1password.eu) 
-item in the shared vault of the MAGIC 1Password account for the specific SharePoint resources used. Generic information 
+See the
+[MAGIC Products Distribution Service - Sharepoint objects reference](https://start.1password.com/open/i?a=QSB6V7TUNVEOPPPWR6G7S2ARJ4&v=ffy5l25mjdv577qj6izuk6lo4m&i=pnywcjeudvbo7beuw4om6jfpce&h=magic.1password.eu)
+item in the shared vault of the MAGIC 1Password account for the specific SharePoint resources used. Generic information
 is shown in this README.
 
 **Note:** These resources are not secrets but are not listed publicly as a precaution.
@@ -789,11 +789,11 @@ Once created, and as an admin user:
 
 ### Terraform
 
-Terraform is used for registering an Azure Application Registration to allow this service to authenticate users and 
+Terraform is used for registering an Azure Application Registration to allow this service to authenticate users and
 interact with SharePoint.
 
-Access to the [BAS AWS account](https://gitlab.data.bas.ac.uk/WSF/bas-aws) 
-(to access [Terraform remote state](#terraform-remote-state) state) and the NERC Azure tenancy are required to 
+Access to the [BAS AWS account](https://gitlab.data.bas.ac.uk/WSF/bas-aws)
+(to access [Terraform remote state](#terraform-remote-state) state) and the NERC Azure tenancy are required to
 provision these resources.
 
 ```shell
