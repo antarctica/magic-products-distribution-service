@@ -674,13 +674,28 @@ Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/s
 [search](https://docs.microsoft.com/en-us/graph/api/site-search) endpoint of the sites resource in Microsoft Graph,
 e.g. `https://graph.microsoft.com/v1.0/sites?search=site_name`.
 
-#### Document Library (Main/Production)
+#### Document Library
 
 Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/drive
 
 **Note:** To find the ID for this resource, query `https://graph.microsoft.com/v1.0/sites/{SITE}/drives`
 
-#### Document Library List (Main/Production)
+#### Document Library items
+
+Graph resource reference: 
+
+To get details for an item in a Document Library, query: `https://graph.microsoft.com/v1.0/drives/{DRIVE}/items/{ITEM}`
+
+To get permission details for an item in a Document Library, query:
+`https://graph.microsoft.com/v1.0/drives/{DRIVE}/items/{ITEM}/permissions`
+
+**Note:** To find the ID for this resource, query: 
+`https://graph.microsoft.com/v1.0/drives/{DRIVE}/items/{ROOT ITEM}/children`
+
+**Note:** To find the ID for this resource, query:
+`https://graph.microsoft.com/v1.0/sites/{SITE}/drives/{DRIVE}/root`
+
+#### Document Library List
 
 Graph resource reference: https://docs.microsoft.com/en-us/graph/api/resources/list
 
