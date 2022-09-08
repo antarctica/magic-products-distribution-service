@@ -694,6 +694,12 @@ Contact [BAS IT](mailto:servicedesk@bas.ac.uk) to request the creation of two se
 
 1. `basmagicanon_svcacc@bas.ac.uk` (BAS MAGIC Products Distribution - Anonymous Access Account)
 1. `basmagiccond_svcacc@bas.ac.uk` (BAS MAGIC Products Distribution - Conditional Access Account)
+
+**Note:** These accounts need to be propagated to Azure Active Directory, so they can use the Microsoft Graph API. 
+
+See [#12](https://gitlab.data.bas.ac.uk/MAGIC/products-distribution/-/issues/12) and
+[#18](https://gitlab.data.bas.ac.uk/MAGIC/products-distribution/-/issues/18) for example requests.
+
 #### Priming service principles for non-interactive authentication
 
 The non-interactive *Username and Password* (credentials) OAuth flow cannot be used for applications the user has not 
@@ -727,19 +733,23 @@ Contact [BAS IT](mailto:servicedesk@bas.ac.uk) to request a new SharePoint site:
     * one or more admin accounts (e.g. `o365conwat@bas.ac.uk`), separate from end-user accounts
 * members:
     * members of the [BAS MAGIC Team](https://nercacuk.sharepoint.com/sites/BASMagicTeam), as a group
-    * the `BAS_MAGIC_PRODUCTS_DIST_COND_ACCESS` service principle
 * visitors: None
 
-**Note:** Do NOT add the `BAS_MAGIC_PRODUCTS_DIST_ANON_ACCESS` service principle as a site member (or any other role).
+Once created, and as an admin user:
 
-Once created:
-
-1. as an admin user, remove all widgets/text from the default site homepage
-2. as an admin user, create a new document library:
+1. remove all widgets/text from the default site homepage
+2. go to *Site contents* -> *Site settings* -> *Site permissions*
+    * remove permissions for the 'MAGIC Products Distribution Visitors' group (which will remove the group)
+3. go to *Site contents* -> *Site settings* -> *People and groups*
+    * from the groups list in the left navigation pane, select *MAGIC Products Distribution Members*
+    * choose *New* -> *Add Users*
+    * invite the `basmagiccond_svcacc@bas.ac.uk` service principle
+    * **DO NOT** add the `basmagicanon_svcacc@bas.ac.uk` service principle as a site member (or as any other role)
+4. create a new document library:
     * name: `Main`
     * description: `Access copies of products created or managed by MAGIC for distribution. Production environment.`
     * 'show in site navigation': *False*
-3. once created, add a new list column:
+5. once created, add a new list column:
     * type: *Single line of text*
     * name: `resource_id`
     * description: `Resource identifier each artefact relates to`
@@ -750,7 +760,7 @@ Once created:
     * (more options) 'Enforce unique values': *False*
     * (more options) 'Add to all content types': *True*
     * (more options) column validation: None
-4. once created, add a second new list column:
+6. once created, add a second new list column:
     * type: *Single line of text*
     * name: `artefact_id`
     * description: `Unique identifier for each resource artefact`
